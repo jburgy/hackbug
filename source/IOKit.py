@@ -11,9 +11,21 @@ use within a multithreaded kernel.  Many of its entry points are wrappers for co
 .. _mach: http://en.wikipedia.org/wiki/Mach_(kernel)
 '''
 
-from CoreFoundation import *
-from ctypes import *
-from objc import pyobjc_id, objc_object
+from CoreFoundation import (  # type: ignore[missing-imports]
+    CFDictionaryCreateMutable,
+    CFRunLoopAddSource,
+    CFRunLoopGetCurrent,
+    CFRunLoopRun,
+    CFRunLoopSourceRef,
+    CFSTR,
+    IOException,
+    kCFAllocatorDefault,
+    kCFRunLoopDefaultMode,
+    kCFTypeDictionaryKeyCallBacks,
+    kCFTypeDictionaryValueCallBacks,
+)
+from ctypes import CDLL, CFUNCTYPE, byref, c_char_p, c_int32, c_uint32, c_void_p, py_object
+from objc import pyobjc_id, objc_object  # type: ignore[missing-imports]
 
 _iokit = CDLL('/System/Library/Frameworks/iokit.framework/iokit')
 
@@ -100,7 +112,7 @@ class IOIterator(object):
         _iokit.IOObjectRelease(self._obj)
     def __iter__(self):
         return self
-    def next(self):
+    def __next__(self):
         '''IOIteratorNext_ wrapper
 
         Returns the next object in an iteration.
@@ -241,12 +253,12 @@ if __name__ == '__main__':
     class Receiver(object):
         def on_path_match(self, paths):
             for path in paths:
-                print '%s matched' % path
+                print(path, 'matched')
 #                self.serial = serial.serial_for_url(port, baudrate=9600, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_TWO, timeout=1)
 
         def on_path_terminate(self, paths):
             for path in paths:
-                print '%s terminated' % path
+                print(path, 'terminated')
 
     receiver = Receiver()
     iterator = port.addMatchingNotifications(matching, receiver)
