@@ -15,8 +15,8 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = ["source"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "mypy>=1.16.0",
     "pytest>=8.4.0",
 ]
